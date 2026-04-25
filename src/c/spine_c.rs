@@ -11418,6 +11418,12 @@ pub unsafe extern "C" fn spBone_updateWorldTransformWith(
             let mut za: c_float = (pa * cosine + pb * sine) / sx;
             let mut zc: c_float = (pc * cosine + pd * sine) / sy;
             let mut s_0: c_float = spine_sqrtf(za * za + zc * zc);
+            if s_0 > 0.00001f32 {
+                s_0 = 1.0f32 / s_0;
+            }
+            za *= s_0;
+            zc *= s_0;
+            s_0 = spine_sqrtf(za * za + zc * zc);
             if (*(*self_0).data).inherit as c_uint == SP_INHERIT_NOSCALE as c_int as c_uint
                 && (pa * pd - pb * pc < 0 as c_int as c_float) as c_int
                     != ((sx < 0 as c_int as c_float) as c_int
