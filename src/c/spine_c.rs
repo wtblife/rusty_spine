@@ -19578,18 +19578,6 @@ pub unsafe extern "C" fn spSkeletonBinary_readSkeletonData(
     i = 0 as c_int;
     while i < (*skeletonData).slotsCount {
         let mut slotName: *mut c_char = readString(input);
-        let mut pathName: *mut c_char = std::ptr::null_mut::<c_char>();
-        if nonessential != 0 {
-            let mut slash: c_int = string_lastIndexOf(slotName, '/' as i32 as c_char);
-            if slash != -(1 as c_int) {
-                pathName = string_substring(slotName, 0 as c_int, slash);
-                slotName = string_substring(
-                    slotName,
-                    slash + 1 as c_int,
-                    spine_strlen(slotName) as c_int,
-                );
-            }
-        }
         let mut boneData: *mut spBoneData =
             *((*skeletonData).bones).offset(readVarint(input, 1 as c_int) as isize);
         let mut slotData: *mut spSlotData = spSlotData_create(i, slotName, boneData);
@@ -19632,7 +19620,6 @@ pub unsafe extern "C" fn spSkeletonBinary_readSkeletonData(
         (*slotData).blendMode = readVarint(input, 1 as c_int) as spBlendMode;
         if nonessential != 0 {
             (*slotData).visible = readBoolean(input);
-            (*slotData).path = pathName;
         }
         let fresh116 = &mut (*((*skeletonData).slots).offset(i as isize));
         *fresh116 = slotData;
@@ -24083,22 +24070,12 @@ pub unsafe extern "C" fn spSkeletonJson_readSkeletonData(
                 );
                 return std::ptr::null_mut::<spSkeletonData>();
             }
-            let mut pathName: *mut c_char = std::ptr::null_mut::<c_char>();
             let mut slotName: *mut c_char = Json_getString(
                 slotMap,
                 (b"name\0" as *const u8).cast::<c_char>(),
                 std::ptr::null::<c_char>(),
             )
             .cast_mut();
-            let slash: c_int = string_lastIndexOf(slotName, '/' as i32 as c_char);
-            if slash != -1 {
-                pathName = string_substring(slotName, 0 as c_int, slash);
-                slotName = string_substring(
-                    slotName,
-                    slash + 1 as c_int,
-                    spine_strlen(slotName) as c_int,
-                );
-            }
             data_0 = spSlotData_create(i, slotName, boneData);
             color_0 = Json_getString(
                 slotMap,
@@ -24160,7 +24137,6 @@ pub unsafe extern "C" fn spSkeletonJson_readSkeletonData(
                 (b"visible\0" as *const u8).cast::<c_char>(),
                 -(1 as c_int),
             );
-            (*data_0).path = pathName;
             let fresh137 = &mut (*((*skeletonData).slots).offset(i as isize));
             *fresh137 = data_0;
             slotMap = (*slotMap).next;
